@@ -9,47 +9,34 @@ fn main() {
     }
 
     let mut path: Option<&Path> = None;
-    let mut i = 1;
     let mut list_hidden = false;
     let mut is_recursive = false;
 
-    loop {
-        if i >= len {
-            break;
-        }
-        let arg = args[i].as_str();
+    for arg in args.iter().map(|a| a.as_str()).skip(1) {
         match arg {
-            "-P" | "--path" => {
-                if i + 1 < len {
-                    path = Some(Path::new(args[i + 1].as_str()));
-                    i += 2;
-                    continue;
-                } else {
-                    panic!("Please provide a path to a directory");
-                }
-            }
-
             "--list-hidden" => {
                 list_hidden = true;
-                i += 1;
-                continue;
             }
 
             "-R" | "--recursive" => {
                 is_recursive = true;
-                i += 1;
-                continue;
             }
 
             _ => {
                 path = Some(Path::new(arg));
-                i += 1;
+                if !path.unwrap().exists() {
+                    continue;
+                }
             }
         }
     }
 
     if path.is_none() {
         panic!("Please provide a path to a directory");
+    }
+
+    if !path.unwrap().exists() {
+        panic!("The path does not exist");
     }
 
     list_dir(path.unwrap(), list_hidden, is_recursive);
